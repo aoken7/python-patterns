@@ -1,22 +1,27 @@
+from typing import Optional, TypeVar
+
+T = TypeVar("T")
+
+
 class Person:
-    def __init__(self, name, action):
+    def __init__(self, name: str, action: Optional[T]) -> None:
         self.name = name
         self.action = action
 
-    def do_action(self):
+    def do_action(self) -> Optional[T]:
         print(self.name, self.action.name, end=" ")
         return self.action
 
 
 class Action:
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self.name = name
 
-    def amount(self, val):
+    def amount(self, val: int) -> Optional[T]:
         print(val, end=" ")
         return self
 
-    def stop(self):
+    def stop(self) -> None:
         print("then stop")
 
 

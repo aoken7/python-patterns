@@ -6,12 +6,15 @@ Provides the ability to restore an object to its previous state.
 """
 
 from copy import copy, deepcopy
+from typing import Optional, TypeVar
+
+T = TypeVar("T")
 
 
-def memento(obj, deep=False):
+def memento(obj: object, deep: bool = False) -> Optional[T]:
     state = deepcopy(obj.__dict__) if deep else copy(obj.__dict__)
 
-    def restore():
+    def restore() -> None:
         obj.__dict__.clear()
         obj.__dict__.update(state)
 
@@ -27,15 +30,15 @@ class Transaction:
     deep = False
     states = []
 
-    def __init__(self, deep, *targets):
+    def __init__(self, deep: bool, *targets) -> None:
         self.deep = deep
         self.targets = targets
         self.commit()
 
-    def commit(self):
+    def commit(self) -> None:
         self.states = [memento(target, self.deep) for target in self.targets]
 
-    def rollback(self):
+    def rollback(self) -> None:
         for a_state in self.states:
             a_state()
 
@@ -46,10 +49,10 @@ class Transactional:
     @Transactional will rollback to entry-state upon exceptions.
     """
 
-    def __init__(self, method):
+    def __init__(self, method) -> None:
         self.method = method
 
-    def __get__(self, obj, T):
+    def __get__(self, obj: object, T) -> Optional["T"]:
         def transaction(*args, **kwargs):
             state = memento(obj)
             try:
@@ -62,17 +65,17 @@ class Transactional:
 
 
 class NumObj:
-    def __init__(self, value):
+    def __init__(self, value: int) -> None:
         self.value = value
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.value!r}>"
 
-    def increment(self):
+    def increment(self) -> None:
         self.value += 1
 
     @Transactional
-    def do_stuff(self):
+    def do_stuff(self) -> None:
         self.value = "1111"  # <- invalid value
         self.increment()  # <- will fail and rollback
 
